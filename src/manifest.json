@@ -1,0 +1,21 @@
+{
+    "testId": "6d473fb5-cc0b-41d4-95ab-428f5332613c",
+    "name": "TexT Behind Image Editor",
+    "version": "1.0.0",
+    "manifestVersion": 2,
+    "requirements": {
+        "apps": [
+            {
+                "name": "Express",
+                "apiVersion": 1
+            }
+        ]
+    },
+    "entryPoints": [
+        {
+            "type": "panel",
+            "id": "panel1",
+            "main": "index.html"
+        }
+    ]
+}
