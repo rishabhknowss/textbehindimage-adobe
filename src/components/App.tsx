@@ -231,110 +231,113 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
         </div>
 
         <div className="main-content">
-          <div className="sidebar">
-            {/* Upload Section */}
-            <div className="card">
-              <h2 style={{ display: "flex", justifyContent: "center" }}>Upload Image</h2>
-              <div className="upload-section">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleImageUpload}
-                  accept="image/*"
-                  style={{ display: "none" }}
-                />
-                <Button size="m" onClick={() => fileInputRef.current?.click()} disabled={isProcessing}>
-                  {isProcessing ? "Processing..." : "Choose Image"}
-                </Button>
-                {isProcessing && <p>This may take a moment.</p>}
-              </div>
-            </div>
-
-            {/* Text Controls */}
-            <div className="card">
-              <h2>Text Settings</h2>
-
-              <div className="control">
-                <FieldLabel>Text</FieldLabel>
-                <Textfield value={text} onInput={(e: any) => setText(e.target.value)} placeholder="Enter your text" />
-              </div>
-
-              <div className="compact-controls">
-                <div className="control">
-                  <FieldLabel>Size: {textSize}px</FieldLabel>
-                  <Slider
-                    value={textSize}
-                    onInput={(e: any) => setTextSize(Number(e.target.value))}
-                    max={200}
-                    min={20}
-                    step={5}
-                  />
-                </div>
-
-                <div className="control">
-                  <FieldLabel>Rotation: {textRotation}°</FieldLabel>
-                  <Slider
-                    value={textRotation}
-                    onInput={(e: any) => setTextRotation(Number(e.target.value))}
-                    max={180}
-                    min={-180}
-                    step={5}
-                  />
-                </div>
-
-                <div className="control">
-                  <FieldLabel>X Position: {textX}%</FieldLabel>
-                  <Slider
-                    value={textX}
-                    onInput={(e: any) => setTextX(Number(e.target.value))}
-                    max={100}
-                    min={0}
-                    step={1}
-                  />
-                </div>
-
-                <div className="control">
-                  <FieldLabel>Y Position: {textY}%</FieldLabel>
-                  <Slider
-                    value={textY}
-                    onInput={(e: any) => setTextY(Number(e.target.value))}
-                    max={100}
-                    min={0}
-                    step={1}
-                  />
-                </div>
-              </div>
-
-              <div className="control">
-                <FieldLabel>Color</FieldLabel>
-                <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} />
-              </div>
-
-              <div className="button-group">
-                <Button size="m" variant="secondary" onClick={resetSettings}>
-                  Reset
-                </Button>
-                <Button size="m" onClick={downloadImage} disabled={!backgroundRemovedImage}>
-                  Download
-                </Button>
-                <Button size="m" onClick={addToCanvas} disabled={!backgroundRemovedImage}>
-                  Add to Canvas
-                </Button>
-              </div>
+          {/* Upload Section */}
+          <div className="card">
+            <h2 style={{ display: "flex", justifyContent: "center" }}>Upload Image</h2>
+            <div className="upload-section">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                accept="image/*"
+                style={{ display: "none" }}
+              />
+              <Button size="m" onClick={() => fileInputRef.current?.click()} disabled={isProcessing}>
+                {isProcessing ? "Processing..." : "Choose Image"}
+              </Button>
+              {isProcessing && <p>This may take a moment.</p>}
             </div>
           </div>
 
-          {/* Preview Section */}
-          <div className="preview-section">
-            <div className="card" style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-              <h2>Preview</h2>
-              <div className="preview">
-                {originalImage ? (
-                  <canvas ref={previewCanvasRef} className="preview-canvas" />
-                ) : (
-                  <p>Upload an image to get started</p>
-                )}
-              </div>
+          {/* Text Settings */}
+          <div className="card">
+            <h2>Text Settings</h2>
+
+            <div className="control">
+              <FieldLabel>Text</FieldLabel>
+              <Textfield value={text} onInput={(e: any) => setText(e.target.value)} placeholder="Enter your text" />
+            </div>
+
+            <div className="control">
+              <FieldLabel>Size: {textSize}px</FieldLabel>
+              <Slider
+                value={textSize}
+                onInput={(e: any) => setTextSize(Number(e.target.value))}
+                max={200}
+                min={20}
+                step={5}
+              />
+            </div>
+
+            <div className="control">
+              <FieldLabel>Rotation: {textRotation}°</FieldLabel>
+              <Slider
+                value={textRotation}
+                onInput={(e: any) => setTextRotation(Number(e.target.value))}
+                max={180}
+                min={-180}
+                step={5}
+              />
+            </div>
+
+            <div className="control">
+              <FieldLabel>Color</FieldLabel>
+              <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} />
+            </div>
+          </div>
+
+          {/* Preview Section - Between Text Settings and Position Controls */}
+          <div className="card preview-card">
+            <h2>Preview</h2>
+            <div className="preview">
+              {originalImage ? (
+                <canvas ref={previewCanvasRef} className="preview-canvas" />
+              ) : (
+                <p>Upload an image to get started</p>
+              )}
+            </div>
+          </div>
+
+          {/* Position Controls */}
+          <div className="card">
+            <h2>Position Controls</h2>
+            
+            <div className="control">
+              <FieldLabel>X Position: {textX}%</FieldLabel>
+              <Slider
+                value={textX}
+                onInput={(e: any) => setTextX(Number(e.target.value))}
+                max={100}
+                min={0}
+                step={1}
+              />
+            </div>
+
+            <div className="control">
+              <FieldLabel>Y Position: {textY}%</FieldLabel>
+              <Slider
+                value={textY}
+                onInput={(e: any) => setTextY(Number(e.target.value))}
+                max={100}
+                min={0}
+                step={1}
+              />
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="card">
+            <h2>Actions</h2>
+            <div className="button-group">
+              <Button size="m" variant="secondary" onClick={resetSettings}>
+                Reset
+              </Button>
+              <Button size="m" onClick={downloadImage} disabled={!backgroundRemovedImage}>
+                Download
+              </Button>
+              <Button size="m" onClick={addToCanvas} disabled={!backgroundRemovedImage}>
+                Add to Canvas
+              </Button>
             </div>
           </div>
         </div>
