@@ -164,7 +164,7 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
               <Slider
                 value={textSize}
                 onInput={(e: any) => setTextSize(Number(e.target.value))}
-                max={200}
+                max={1000}
                 min={20}
                 step={5}
               />
