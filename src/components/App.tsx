@@ -115,105 +115,6 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
     }
   }
 
-  const downloadImage = async () => {
-    console.log("Download function called")
-
-    if (!previewCanvasRef.current) {
-      console.error("Canvas ref is null")
-      alert("Canvas not ready. Please try again.")
-      return
-    }
-
-    const canvas = previewCanvasRef.current
-    console.log("Canvas dimensions:", canvas.width, "x", canvas.height)
-
-    try {
-      console.log("Converting canvas to blob...")
-
-      // Use canvas.toBlob for better browser compatibility
-      canvas.toBlob(
-        async (blob) => {
-          if (!blob) {
-            console.error("Failed to create blob from canvas")
-            alert("Failed to create image file. Please try again.")
-            return
-          }
-
-          console.log("Blob created successfully, size:", blob.size, "bytes")
-
-          try {
-            // Method 1: Try using the modern File System Access API if available
-            if ("showSaveFilePicker" in window) {
-              console.log("Using File System Access API")
-              const fileHandle = await (window as any).showSaveFilePicker({
-                suggestedName: `text-behind-image-${Date.now()}.png`,
-                types: [
-                  {
-                    description: "PNG Image",
-                    accept: { "image/png": [".png"] },
-                  },
-                ],
-              })
-              const writable = await fileHandle.createWritable()
-              await writable.write(blob)
-              await writable.close()
-              console.log("File saved successfully using File System Access API")
-              alert("Image downloaded successfully!")
-              return
-            }
-          } catch (fsError) {
-            console.log("File System Access API failed or cancelled:", fsError)
-          }
-
-          // Method 2: Fallback to traditional download
-          console.log("Using traditional download method")
-          const url = URL.createObjectURL(blob)
-          console.log("Blob URL created:", url)
-
-          const link = document.createElement("a")
-          link.href = url
-          link.download = `text-behind-image-${Date.now()}.png`
-
-          // Make link invisible but ensure it's in the DOM
-          link.style.display = "none"
-          document.body.appendChild(link)
-
-          console.log("Triggering download...")
-          link.click()
-
-          // Clean up
-          setTimeout(() => {
-            document.body.removeChild(link)
-            URL.revokeObjectURL(url)
-            console.log("Cleanup completed")
-          }, 100)
-
-          // Show success message
-          setTimeout(() => {
-            alert("Download started! Check your Downloads folder.")
-          }, 200)
-        },
-        "image/png",
-        1.0,
-      )
-    } catch (error) {
-      console.error("Error in download process:", error)
-      alert(`Download failed: ${error.message}`)
-    }
-  }
-
-  const checkDownloadSupport = () => {
-    console.log("Browser download support:")
-    console.log("- File System Access API:", "showSaveFilePicker" in window)
-    console.log("- Blob support:", typeof Blob !== "undefined")
-    console.log("- URL.createObjectURL:", typeof URL !== "undefined" && typeof URL.createObjectURL === "function")
-    console.log("- Canvas.toBlob:", typeof HTMLCanvasElement.prototype.toBlob === "function")
-  }
-
-  useEffect(() => {
-    checkDownloadSupport()
-  }, [])
-
   const resetSettings = () => {
     setText("AMAZING")
     setTextSize(120)
@@ -331,9 +232,6 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
             <div className="button-group">
               <Button size="m" variant="secondary" onClick={resetSettings}>
                 Reset
-              </Button>
-              <Button size="m" onClick={downloadImage} disabled={!backgroundRemovedImage}>
-                Download
               </Button>
               <Button size="m" onClick={addToCanvas} disabled={!backgroundRemovedImage}>
                 Add to Canvas
