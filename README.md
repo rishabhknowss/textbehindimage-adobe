@@ -2,6 +2,12 @@
 
 A React-based Adobe Express Add-on that allows users to create stunning text-behind-object effects using background removal.
 
+##  Quick Links
+
+🎮 **[Try TextBehindImage Live](https://adobesparkpost.app.link/TR9Mb7TXFLb?mode=private&claimCode=wij4j06m3:6PF6XRL2)** - Experience the add-on in Adobe Express  
+📺 **[Watch Demo Video](https://youtu.be/OEjUdmbBtHo)** - See TextBehindImage in action
+
+
 ## Features
 
 - **Image Upload**: Upload an image to remove its background automatically.
@@ -21,7 +27,7 @@ A React-based Adobe Express Add-on that allows users to create stunning text-beh
 
 1. **Clone the Repository**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/rishabhknowss/textbehindimage-adobe
    cd text-behind-image-editor
    ```
 
