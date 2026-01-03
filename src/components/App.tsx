@@ -203,7 +203,7 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
     }
 
     // Reset text settings
-    setText("AMAZING")
+    setText("")
     setTextSize(120)
     setTextColor("#ffffff")
     setTextX(50)
@@ -250,7 +250,12 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
                   </Button>
                 )}
               </div>
-              {isProcessing && <p>This may take a moment.</p>}
+              {isProcessing && (
+                <div className="processing-status">
+                  <div className="spinner"></div>
+                  <p>Processing image... This may take a moment.</p>
+                </div>
+              )}
             </div>
           </div>
 
