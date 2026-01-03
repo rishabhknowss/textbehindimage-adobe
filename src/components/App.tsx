@@ -188,13 +188,29 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
     }
   }
 
-  const resetSettings = () => {
+  const resetAll = () => {
+    // Clear image data
+    if (currentImageUrlRef.current) {
+      URL.revokeObjectURL(currentImageUrlRef.current)
+      currentImageUrlRef.current = null
+    }
+    setOriginalImage(null)
+    setBackgroundRemovedImage(null)
+
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+
+    // Reset text settings
     setText("AMAZING")
     setTextSize(120)
     setTextColor("#ffffff")
     setTextX(50)
     setTextY(50)
     setTextRotation(0)
+    setTextError(null)
+    setIsPreviewVisible(true)
   }
 
   const hidePreview = useCallback(() => {
@@ -333,7 +349,7 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
           <div className="card">
             <h2>Actions</h2>
             <div className="button-group">
-              <Button size="m" variant="secondary" onClick={resetSettings}>
+              <Button size="m" variant="secondary" onClick={resetAll}>
                 Reset
               </Button>
               <Button size="m" onClick={addToCanvas} disabled={!backgroundRemovedImage || !text.trim()}>
