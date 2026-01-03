@@ -47,6 +47,12 @@
   gap: 12px;
 }
 
+.upload-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
 .control {
   margin-bottom: 16px;
 }

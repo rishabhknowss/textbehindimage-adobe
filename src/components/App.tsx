@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import { flushSync } from "react-dom"
 import { useRef, useState, useCallback, useEffect } from "react"
 import { Theme } from "@swc-react/theme"
 import { Button } from "@swc-react/button"
@@ -29,24 +30,78 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
   const [textRotation, setTextRotation] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
+  const processingIdRef = useRef<number>(0)
+  const currentImageUrlRef = useRef<string | null>(null)
+
+  const cancelProcessing = useCallback(() => {
+    // Increment processing ID to invalidate any in-flight operation
+    processingIdRef.current += 1
+
+    // Force immediate synchronous UI update for responsiveness
+    flushSync(() => {
+      setIsProcessing(false)
+      setOriginalImage(null)
+      setBackgroundRemovedImage(null)
+    })
+
+    // Defer cleanup to next frame to avoid blocking UI
+    requestAnimationFrame(() => {
+      if (currentImageUrlRef.current) {
+        URL.revokeObjectURL(currentImageUrlRef.current)
+        currentImageUrlRef.current = null
+      }
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+    })
+  }, [])
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
 
+    // Increment processing ID to invalidate any previous in-flight operation
+    processingIdRef.current += 1
+    const currentProcessingId = processingIdRef.current
+
+    // Clean up previous image URL if exists
+    if (currentImageUrlRef.current) {
+      URL.revokeObjectURL(currentImageUrlRef.current)
+    }
+
     const imageUrl = URL.createObjectURL(file)
+    currentImageUrlRef.current = imageUrl
     setOriginalImage(imageUrl)
+    setBackgroundRemovedImage(null)
     setIsProcessing(true)
 
     try {
       const imageBlob = await removeBackground(imageUrl)
+
+      // Check if this operation was cancelled (a newer one started or user cancelled)
+      if (currentProcessingId !== processingIdRef.current) {
+        URL.revokeObjectURL(imageUrl)
+        return
+      }
+
       const backgroundRemovedUrl = URL.createObjectURL(imageBlob)
       setBackgroundRemovedImage(backgroundRemovedUrl)
     } catch (error) {
+      // Only handle error if this operation is still current
+      if (currentProcessingId !== processingIdRef.current) {
+        return
+      }
       console.error("Error removing background:", error)
       alert("Failed to process image. Please try another image.")
+      URL.revokeObjectURL(imageUrl)
+      currentImageUrlRef.current = null
+      setOriginalImage(null)
     } finally {
-      setIsProcessing(false)
+      // Only update processing state if this operation is still current
+      if (currentProcessingId === processingIdRef.current) {
+        setIsProcessing(false)
+      }
     }
   }
 
@@ -143,9 +198,16 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
                 accept="image/*"
                 style={{ display: "none" }}
               />
-              <Button size="m" onClick={() => fileInputRef.current?.click()} disabled={isProcessing}>
-                {isProcessing ? "Processing..." : "Choose Image"}
-              </Button>
+              <div className="upload-buttons">
+                <Button size="m" onClick={() => fileInputRef.current?.click()} disabled={isProcessing}>
+                  {isProcessing ? "Processing..." : "Choose Image"}
+                </Button>
+                {isProcessing && (
+                  <Button size="m" variant="secondary" onClick={cancelProcessing}>
+                    Cancel
+                  </Button>
+                )}
+              </div>
               {isProcessing && <p>This may take a moment.</p>}
             </div>
           </div>
