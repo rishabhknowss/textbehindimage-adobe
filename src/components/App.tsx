@@ -23,6 +23,7 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
   const [backgroundRemovedImage, setBackgroundRemovedImage] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [isPreviewVisible, setIsPreviewVisible] = useState(true)
+  const [textError, setTextError] = useState<string | null>(null)
   const [text, setText] = useState("AMAZING")
   const [textSize, setTextSize] = useState(120)
   const [textColor, setTextColor] = useState("#ffffff")
@@ -161,8 +162,15 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
   }, [isPreviewVisible, updatePreview])
 
   const addToCanvas = async () => {
+    // Validate text input
+    if (!text.trim()) {
+      setTextError("Please enter text.")
+      return
+    }
+
     if (!previewCanvasRef.current) return
 
+    setTextError(null)
     const canvas = previewCanvasRef.current
     const dataUrl = canvas.toDataURL("image/png")
 
@@ -236,7 +244,15 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
 
             <div className="control">
               <FieldLabel>Text</FieldLabel>
-              <Textfield value={text} onInput={(e: any) => setText(e.target.value)} placeholder="Enter your text" />
+              <Textfield
+                value={text}
+                onInput={(e: any) => {
+                  setText(e.target.value)
+                  if (textError) setTextError(null)
+                }}
+                placeholder="Enter your text"
+              />
+              {textError && <p className="error-message">{textError}</p>}
             </div>
 
             <div className="control">
@@ -320,7 +336,7 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
               <Button size="m" variant="secondary" onClick={resetSettings}>
                 Reset
               </Button>
-              <Button size="m" onClick={addToCanvas} disabled={!backgroundRemovedImage}>
+              <Button size="m" onClick={addToCanvas} disabled={!backgroundRemovedImage || !text.trim()}>
                 Add to Canvas
               </Button>
             </div>
