@@ -22,6 +22,7 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
   const [originalImage, setOriginalImage] = useState<string | null>(null)
   const [backgroundRemovedImage, setBackgroundRemovedImage] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isPreviewVisible, setIsPreviewVisible] = useState(true)
   const [text, setText] = useState("AMAZING")
   const [textSize, setTextSize] = useState(120)
   const [textColor, setTextColor] = useState("#ffffff")
@@ -76,6 +77,7 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
     setOriginalImage(imageUrl)
     setBackgroundRemovedImage(null)
     setIsProcessing(true)
+    setIsPreviewVisible(true)
 
     try {
       const imageBlob = await removeBackground(imageUrl)
@@ -151,6 +153,13 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
     updatePreview()
   }, [updatePreview])
 
+  // Redraw canvas when preview becomes visible again
+  useEffect(() => {
+    if (isPreviewVisible) {
+      updatePreview()
+    }
+  }, [isPreviewVisible, updatePreview])
+
   const addToCanvas = async () => {
     if (!previewCanvasRef.current) return
 
@@ -180,20 +189,12 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
     setTextRotation(0)
   }
 
-  const closePreview = useCallback(() => {
-    // Clean up image URLs
-    if (currentImageUrlRef.current) {
-      URL.revokeObjectURL(currentImageUrlRef.current)
-      currentImageUrlRef.current = null
-    }
+  const hidePreview = useCallback(() => {
+    setIsPreviewVisible(false)
+  }, [])
 
-    setOriginalImage(null)
-    setBackgroundRemovedImage(null)
-
-    // Reset file input so the same file can be selected again
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
-    }
+  const showPreview = useCallback(() => {
+    setIsPreviewVisible(true)
   }, [])
 
   return (
@@ -266,20 +267,22 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
             </div>
           </div>
 
-          {/* Preview Section - Only shown when image is uploaded */}
+          {/* Preview Section - Uses CSS to hide/show to preserve canvas content */}
           {originalImage && (
-            <div className="card preview-card">
+            <div className={`card preview-card ${!isPreviewVisible ? 'hidden' : ''}`}>
               <div className="preview-header">
                 <h2>Preview</h2>
                 {!isProcessing && (
-                  <Button size="s" variant="secondary" onClick={closePreview}>
-                    Close
+                  <Button size="s" variant="secondary" onClick={isPreviewVisible ? hidePreview : showPreview}>
+                    {isPreviewVisible ? 'Hide' : 'Show'}
                   </Button>
                 )}
               </div>
-              <div className="preview">
-                <canvas ref={previewCanvasRef} className="preview-canvas" />
-              </div>
+              {isPreviewVisible && (
+                <div className="preview">
+                  <canvas ref={previewCanvasRef} className="preview-canvas" />
+                </div>
+              )}
             </div>
           )}
 
