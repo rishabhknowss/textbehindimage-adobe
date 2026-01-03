@@ -37,15 +37,16 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
     // Increment processing ID to invalidate any in-flight operation
     processingIdRef.current += 1
 
-    // Force immediate synchronous UI update for responsiveness
+    // First priority: hide the cancel button immediately
     flushSync(() => {
       setIsProcessing(false)
-      setOriginalImage(null)
-      setBackgroundRemovedImage(null)
     })
 
-    // Defer cleanup to next frame to avoid blocking UI
+    // Defer remaining state updates and cleanup to next frame
     requestAnimationFrame(() => {
+      setOriginalImage(null)
+      setBackgroundRemovedImage(null)
+
       if (currentImageUrlRef.current) {
         URL.revokeObjectURL(currentImageUrlRef.current)
         currentImageUrlRef.current = null
@@ -179,6 +180,22 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
     setTextRotation(0)
   }
 
+  const closePreview = useCallback(() => {
+    // Clean up image URLs
+    if (currentImageUrlRef.current) {
+      URL.revokeObjectURL(currentImageUrlRef.current)
+      currentImageUrlRef.current = null
+    }
+
+    setOriginalImage(null)
+    setBackgroundRemovedImage(null)
+
+    // Reset file input so the same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }, [])
+
   return (
     <Theme system="express" scale="medium" color="light">
       <div className="container">
@@ -249,17 +266,22 @@ const App: React.FC<AppProps> = ({ addOnUISdk }) => {
             </div>
           </div>
 
-          {/* Preview Section - Between Text Settings and Position Controls */}
-          <div className="card preview-card">
-            <h2>Preview</h2>
-            <div className="preview">
-              {originalImage ? (
+          {/* Preview Section - Only shown when image is uploaded */}
+          {originalImage && (
+            <div className="card preview-card">
+              <div className="preview-header">
+                <h2>Preview</h2>
+                {!isProcessing && (
+                  <Button size="s" variant="secondary" onClick={closePreview}>
+                    Close
+                  </Button>
+                )}
+              </div>
+              <div className="preview">
                 <canvas ref={previewCanvasRef} className="preview-canvas" />
-              ) : (
-                <p>Upload an image to get started</p>
-              )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Position Controls */}
           <div className="card">

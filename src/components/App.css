@@ -40,6 +40,17 @@
   font-weight: 600;
 }
 
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.preview-header h2 {
+  margin: 0;
+}
+
 .upload-section {
   display: flex;
   flex-direction: column;
